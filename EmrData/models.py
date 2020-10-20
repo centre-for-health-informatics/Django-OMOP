@@ -1,3 +1,2 @@
-from django.db import models
-
-# Create your models here.
+from EmrData.OMOPModels.clinicalDataModels import *
+from EmrData.OMOPModels.vocabularyModels import *
