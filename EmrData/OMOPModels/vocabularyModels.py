@@ -24,7 +24,7 @@ class VOCABULARY(models.Model):
     vocabulary_name = models.CharField(max_length=255)
     vocabulary_reference = models.CharField(max_length=255)
     vocabulary_version = models.CharField(max_length=255, null=True)
-    vocabulary_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name='vocabulary_id')
+    vocabulary_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name='vocabulary')
 
     class Meta:
         db_table = "VOCABULARY"
@@ -33,7 +33,7 @@ class VOCABULARY(models.Model):
 class DOMAIN(models.Model):
     domain_id = models.CharField(max_length=20, primary_key=True)
     domain_name = models.CharField(max_length=255)
-    domain_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name='domain_id')
+    domain_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name='domain')
 
     class Meta:
         db_table = "DOMAIN"
@@ -42,7 +42,7 @@ class DOMAIN(models.Model):
 class CONCEPT_CLASS(models.Model):
     concept_class_id = models.CharField(max_length=20, primary_key=True)
     concept_class_name = models.CharField(max_length=255)
-    concept_class_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name='concept_class_id')
+    concept_class_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name='concept_class')
 
     class Meta:
         db_table = "CONCEPT_CLASS"
