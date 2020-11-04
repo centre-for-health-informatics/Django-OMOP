@@ -1,8 +1,11 @@
 # Django-OMOP
 
-The OMOP Common Data Model implemented in Django.
+The OMOP Common Data Model (v6) implemented in Django3.1. For more information regarding OMOP, please visit OHDSI CDM Working Group (https://ohdsi.github.io/CommonDataModel/index.html).
 
+##### Django-OMOP data entity relations diagram
 ![](docs/omop-erd.png)
+
+## How-to
 
 ### Set up Django
 
