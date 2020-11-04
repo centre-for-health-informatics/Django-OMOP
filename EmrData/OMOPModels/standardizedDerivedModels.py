@@ -6,7 +6,7 @@ from EmrData.OMOPModels.clinicalDataModels import PERSON
 
 
 class DRUG_ERA(models.Model):
-    drug_era_id = models.BigAutoField()
+    drug_era_id = models.BigAutoField(primary_key=True)
     person_id = models.ForeignKey(PERSON, on_delete=models.DO_NOTHING, related_name="drug_era")
     drug_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING,
                                         limit_choices_to=Q(domain__domain_id__icontains='Drug'), related_name="+")
@@ -20,7 +20,7 @@ class DRUG_ERA(models.Model):
 
 
 class DOSE_ERA(models.Model):
-    dose_era_id = BigAutoField()
+    dose_era_id = BigAutoField(primary_key=True)
     person_id = models.ForeignKey(PERSON, on_delete=models.DO_NOTHING, related_name="dose_era")
     drug_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING,
                                         limit_choices_to=Q(domain__domain_id__icontains='Drug'), related_name="+")
@@ -35,7 +35,7 @@ class DOSE_ERA(models.Model):
 
 
 class CONDITION_ERA(models.Model):
-    condition_era_id = AutoField()
+    condition_era_id = AutoField(primary_key=True)
     person_id = models.ForeignKey(PERSON, on_delete=models.DO_NOTHING, related_name="condition_era")
     condition_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING,
                                              limit_choices_to=Q(domain__domain_id__icontains='Condition'), related_name="+")

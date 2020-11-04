@@ -6,7 +6,7 @@ from django.db.models import Q
 
 
 class PAYER_PLAN_PERIOD(models.Model):
-    payer_plan_period_id = models.BigAutoField()
+    payer_plan_period_id = models.BigAutoField(primary_key=True)
     person_id = models.ForeignKey(PERSON, on_delete=models.DO_NOTHING, related_name="payer_plan_period")
     contract_person_id = models.ForeignKey(PERSON, on_delete=models.DO_NOTHING, related_name="+", null=True)
     payer_plan_period_start_date = models.DateField()
@@ -24,7 +24,7 @@ class PAYER_PLAN_PERIOD(models.Model):
     contract_source_value = models.CharField(max_length=50)
     contract_source_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
     sponsor_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, limit_choices_to=Q(
-        domain__domain_id__icontains="Sponsor") & Q(standard_concept='S'), related_query_name="+", null=True)
+        domain__domain_id__icontains="Sponsor") & Q(standard_concept='S'), related_name="+", null=True)
     sponsor_source_value = models.CharField(max_length=50, null=True)
     sponsor_source_concept_id = models.ForeignKey(
         CONCEPT, on_delete=models.DO_NOTHING, related_query_name="+", null=True)
@@ -39,9 +39,9 @@ class PAYER_PLAN_PERIOD(models.Model):
 
 
 class COST(models.Model):
-    cost_id = models.AutoField()
+    cost_id = models.AutoField(primary_key=True)
     cost_event_id = models.BigIntegerField()
-    cost_domain_id = models.ForeignKey(DOMAIN)
+    cost_domain_id = models.ForeignKey(DOMAIN, on_delete=models.DO_NOTHING, related_name="+")
     cost_type_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
     currency_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+", null=True)
     total_charge = models.FloatField(null=True)
