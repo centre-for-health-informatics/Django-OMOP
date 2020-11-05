@@ -22,7 +22,7 @@ class LOCATION(models.Model):
 class LOCATION_HISTORY(models.Model):
     location_id = models.ForeignKey(LOCATION, on_delete=models.DO_NOTHING, related_name="history")
     relationship_type_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, limit_choices_to=Q(
-        concept_class__concept_class_id__icontains="Location") & Q(standard_concept='S'), related_name="+")
+        concept_class__concept_class_id="Location") & Q(standard_concept='S'), related_name="+")
     domain_id = models.CharField(max_length=50)
     entity_id = models.BigIntegerField()
     start_date = models.DateField()
@@ -36,7 +36,7 @@ class CARE_SITE(models.Model):
     care_site_id = models.BigIntegerField(primary_key=True)
     care_site_name = models.CharField(max_length=255, null=True)
     place_of_service_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, limit_choices_to=Q(
-        domain__domain_id__icontains="Visit") & Q(standard_concept='S'), related_name="+")
+        domain__domain_id="Visit") & Q(standard_concept='S'), related_name="+")
     location_id = models.ForeignKey(LOCATION, on_delete=models.DO_NOTHING, null=True)
     care_site_source_value = models.CharField(max_length=50, null=True)
     place_of_service_source_value = models.CharField(max_length=50, null=True)
@@ -51,11 +51,11 @@ class PROVIDER(models.Model):
     npi = models.CharField(max_length=20, null=True)
     dea = models.CharField(max_length=20, null=True)
     specialty_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, limit_choices_to=Q(
-        domain__domain_id__icontains="Provider") & Q(standard_concept='S'), related_name="+")
+        domain__domain_id="Provider") & Q(standard_concept='S'), related_name="+")
     care_site_id = models.ForeignKey(CARE_SITE, on_delete=models.DO_NOTHING, null=True, related_name='provider')
     year_of_birth = models.IntegerField(null=True)
     gender_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, limit_choices_to=Q(
-        domain__domain_id__icontains="Gender") & Q(standard_concept='S'), related_name="+")
+        domain__domain_id="Gender") & Q(standard_concept='S'), related_name="+")
     provider_source_value = models.CharField(max_length=50, null=True)
     specialty_source_value = models.CharField(max_length=50, null=True)
     specialty_source_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")

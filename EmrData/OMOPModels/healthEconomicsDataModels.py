@@ -12,25 +12,25 @@ class PAYER_PLAN_PERIOD(models.Model):
     payer_plan_period_start_date = models.DateField()
     payer_plan_period_end_date = models.DateField()
     payer_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, limit_choices_to=Q(
-        domain__domain_id__icontains="Payer") & Q(standard_concept='S'), related_name="+")
+        domain__domain_id="Payer") & Q(standard_concept='S'), related_name="+")
     payer_source_value = models.CharField(max_length=50, null=True)
     payer_source_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
     plan_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, limit_choices_to=Q(
-        domain__domain_id__icontains="Plan") & Q(standard_concept='S'), related_name="+")
+        domain__domain_id="Plan") & Q(standard_concept='S'), related_name="+")
     plan_source_value = models.CharField(max_length=50, null=True)
     plan_source_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+", null=True)
     contract_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, limit_choices_to=Q(
-        domain__domain_id__icontains="Relationship") & Q(standard_concept='S'), related_name="+")
+        domain__domain_id="Relationship") & Q(standard_concept='S'), related_name="+")
     contract_source_value = models.CharField(max_length=50)
     contract_source_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
     sponsor_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, limit_choices_to=Q(
-        domain__domain_id__icontains="Sponsor") & Q(standard_concept='S'), related_name="+", null=True)
+        domain__domain_id="Sponsor") & Q(standard_concept='S'), related_name="+", null=True)
     sponsor_source_value = models.CharField(max_length=50, null=True)
     sponsor_source_concept_id = models.ForeignKey(
         CONCEPT, on_delete=models.DO_NOTHING, related_query_name="+", null=True)
     family_source_value = models.CharField(max_length=50, null=True)
     stop_reason_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, limit_choices_to=Q(
-        domain__domain_id__icontains="Plan Stop Reason") & Q(standard_concept='S'), related_name="+", null=True)
+        domain__domain_id="Plan Stop Reason") & Q(standard_concept='S'), related_name="+", null=True)
     stop_reason_source_value = models.CharField(max_length=50, null=True)
     stop_reason_source_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+", null=True)
 
