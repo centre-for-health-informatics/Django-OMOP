@@ -1,4 +1,3 @@
-from django.db.models.fields import CharField
 from EmrData.OMOPModels.healthSystemDataModels import CARE_SITE, LOCATION, PROVIDER
 from django.db import models
 from django.db.models import Q
@@ -145,11 +144,11 @@ class DRUG_EXPOSURE(models.Model):
     stop_reason = models.CharField(max_length=20, null=True)
     refills = models.IntegerField(null=True)
     quantity = models.FloatField(null=True)
-    days_supply = models.IntegerChoices(null=True)
+    days_supply = models.IntegerField(null=True)
     sig = models.TextField(null=True)
     route_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, limit_choices_to=Q(
         domain__domain_id="Route"), null=True, related_name="+")
-    lot_number = CharField(max_length=50, null=True)
+    lot_number = models.CharField(max_length=50, null=True)
     provider_id = models.ForeignKey(PROVIDER, on_delete=models.DO_NOTHING, null=True, related_name="+")
     visit_occurrence_id = models.ForeignKey(
         VISIT_OCCURRENCE, on_delete=models.DO_NOTHING, null=True, related_name="drug_exposure")
@@ -212,3 +211,176 @@ class DEVICE_EXPOSURE(models.Model):
 
     class Meta:
         db_table = "DEVICE_EXPOSURE"
+
+
+class MEASUREMENT(models.Model):
+    measurement_id = models.BigIntegerField(primary_key=True)
+    person_id = models.ForeignKey(PERSON, on_delete=models.DO_NOTHING, related_name="measurement")
+    measurement_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, limit_choices_to=Q(
+        domain__domain_id='Measurement') & Q(standard_concept='S'), related_name="+")
+    measurement_date = models.DateField()
+    measurement_datetime = models.DateTimeField(null=True)
+    measurement_type_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, limit_choices_to=Q(
+        domain__domain_id='Type Concept') & Q(standard_concept='S'), related_name="+")
+    operator_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, limit_choices_to=Q(
+        domain__domain_id='Meas Value Operator') & Q(standard_concept='S'), null=True, related_name="+")
+    value_as_number = models.FloatField(null=True)
+    value_as_concept_id = models.ForeignKey(CONCEPT,  on_delete=models.DO_NOTHING, limit_choices_to=Q(
+        domain__domain_id='Meas Value') & Q(standard_concept='S'), null=True, related_name="+")
+    unit_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, limit_choices_to=Q(
+        domain__domain_id='Unit'), null=True, related_name="+")
+    range_low = models.FloatField(null=True)
+    range_high = models.FloatField(null=True)
+    provider_id = models.ForeignKey(PROVIDER, on_delete=models.DO_NOTHING, null=True, related_name="+")
+    visit_occurrence_id = models.ForeignKey(
+        VISIT_OCCURRENCE, on_delete=models.DO_NOTHING, null=True, related_name="measurement")
+    visit_detail_id = models.ForeignKey(VISIT_DETAIL, on_delete=models.DO_NOTHING,
+                                        null=True, related_name="measurement")
+    measurement_source_value = models.CharField(max_length=50, null=True)
+    measurement_source_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, null=True, related_name="+")
+    unit_source_value = models.CharField(max_length=50, null=True)
+    value_source_value = models.CharField(max_length=50, null=True)
+
+    class Meta:
+        db_table = "MEASUREMENT"
+
+
+class OBSERVATION(models.Model):
+    observation_id = models.BigIntegerField(primary_key=True)
+    person_id = models.ForeignKey(PERSON, on_delete=models.DO_NOTHING, related_name="observation")
+    observation_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
+    observation_date = models.DateField(null=True)
+    observation_datetime = models.DateTimeField()
+    observation_type_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, limit_choices_to=Q(
+        domain__domain_id='Type Concept') & Q(standard_concept='S'), related_name="+")
+    value_as_number = models.FloatField(null=True)
+    value_as_string = models.CharField(max_length=60, null=True)
+    value_as_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, null=True, related_name="+")
+    qualifier_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, null=True, related_name="+")
+    unit_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, null=True,
+                                        limit_choices_to=Q(domain__domain_id='Unit'), related_name="+")
+    provider_id = models.ForeignKey(PROVIDER, on_delete=models.DO_NOTHING, null=True, related_name="+")
+    visit_occurrence_id = models.ForeignKey(
+        VISIT_OCCURRENCE, on_delete=models.DO_NOTHING, null=True, related_name="observation")
+    visit_detail_id = models.ForeignKey(VISIT_DETAIL, on_delete=models.DO_NOTHING,
+                                        null=True, related_name="observation")
+    observation_source_value = models.CharField(max_length=50, null=True)
+    observation_source_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, null=True, related_name="+")
+    unit_source_value = models.CharField(max_length=50, null=True)
+    qualifier_source_value = models.CharField(max_length=50, null=True)
+    observation_event_id = models.BigIntegerField(null=True)
+    obs_event_field_concept_id = models.ForeignKey(CONCEPT,  on_delete=models.DO_NOTHING, null=True, related_name="+")
+    value_as_datetime = models.DateTimeField(null=True)
+
+    class Meta:
+        db_table = "OBSERVATION"
+
+
+class NOTE(models.Model):
+    note_id = models.IntegerField(primary_key=True)
+    person_id = models.ForeignKey(PERSON, on_delete=models.DO_NOTHING, related_name="note")
+    note_date = models.DateField()
+    note_datetime = models.DateTimeField(null=True)
+    note_type_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, limit_choices_to=Q(
+        domain__domain_id='Type Concept') & Q(standard_concept='S'), related_name="+")
+    note_class_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, limit_choices_to=(Q(concept_class__concept_class_id='Doc Kind') | Q(concept_class__concept_class_id='Doc Role') | Q(
+        concept_class__concept_class_id='Doc Setting') | Q(concept_class__concept_class_id='Doc Subject Matter') | Q(concept_class__concept_class_id='Doc Type of Service')) & Q(domain__domain_id='Meas Value') & Q(standard_concept='S'), related_name="+")
+    note_title = models.CharField(max_length=250, null=True)
+    note_text = models.TextField()
+    encoding_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, null=True, related_name="+")
+    language_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
+    provider_id = models.ForeignKey(PROVIDER, on_delete=models.DO_NOTHING, null=True, related_name="+")
+    visit_occurrence_id = models.ForeignKey(
+        VISIT_OCCURRENCE, on_delete=models.DO_NOTHING, null=True, related_name="note")
+    visit_detail_id = models.ForeignKey(VISIT_DETAIL, on_delete=models.DO_NOTHING, null=True, related_name="note")
+    note_source_value = models.CharField(max_length=50, null=True)
+
+    class Meta:
+        db_table = "NOTE"
+
+
+class NOTE_NLP(models.Model):
+    note_nlp_id = models.BigIntegerField(primary_key=True)
+    note_id = models.ForeignKey(NOTE, on_delete=models.DO_NOTHING, related_name="note_nlp")
+    section_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, null=True, related_name="+")
+    snippet = models.CharField(max_length=250, null=True)
+    offset = models.CharField(max_length=50, null=True)
+    lexical_variant = models.CharField(max_length=250)
+    note_nlp_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, null=True, related_name="+")
+    note_nlp_source_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, null=True, related_name="+")
+    nlp_system = models.CharField(max_length=250, null=True)
+    nlp_date = models.DateField()
+    nlp_datetime = models.DateTimeField(null=True)
+    term_exists = models.BooleanField(null=True)
+    term_temporal = models.CharField(max_length=50)
+    term_modifiers = models.CharField(max_length=2000, null=True)
+
+    class Meta:
+        db_table = "NOTE_NLP"
+
+
+class SPECIMEN(models.Model):
+    specimen_id = models.BigIntegerField(primary_key=True)
+    person_id = models.ForeignKey(PERSON, on_delete=models.DO_NOTHING, related_name="+")
+    specimen_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, limit_choices_to=Q(
+        domain__domain_id='Specimen') & Q(standard_concept='S'), related_name="+")
+    specimen_date = models.DateField()
+    specimen_datetime = models.DateTimeField(null=True)
+    quantity = models.FloatField(null=True)
+    unit_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, null=True,
+                                        limit_choices_to=Q(domain__domain_id='Unit') & Q(standard_concept='S'), related_name="+")
+    anatomic_site_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, null=True, limit_choices_to=Q(
+        domain__domain_id='Spec Anatomic Site') & Q(concept_class__concept_class_id='Body Structure') & Q(standard_concept='S'), related_name="+")
+    disease_status_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, null=True, related_name="+")
+    specimen_source_id = models.CharField(max_length=50, null=True)
+    specimen_source_value = models.CharField(max_length=50, null=True)
+    unit_source_value = models.CharField(max_length=50, null=True)
+    anatomic_site_source_value = models.CharField(max_length=50, null=True)
+    disease_status_source_value = models.CharField(max_length=50, null=True)
+
+    class Meta:
+        db_table = "SPECIMEN"
+
+
+class FACT_RELATIONSHIP(models.Model):
+    domain_concept_id_1 = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
+    fact_id_1 = models.BigIntegerField()
+    domain_concept_id_2 = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
+    fact_id_2 = models.BigIntegerField()
+    relationship_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
+
+    class Meta:
+        db_table = "FACT_RELATIONSHIP"
+
+
+class SURVEY_CONDUCT(models.Model):
+    survey_conduct_id = models.BigIntegerField(primary_key=True)
+    person_id = models.ForeignKey(PERSON, on_delete=models.DO_NOTHING, related_name="survey_conduct")
+    survey_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, null=True, limit_choices_to=Q(
+        concept_class__concept_class_id='Staging / Scales') & Q(standard_concept='S'), related_name="+")
+    survey_start_date = models.DateField(null=True)
+    survey_start_datetime = models.DateTimeField(null=True)
+    survey_end_date = models.DateField(null=True)
+    survey_end_datetime = models.DateTimeField()
+    provider_id = models.ForeignKey(PROVIDER, on_delete=models.DO_NOTHING, null=True, related_name="+")
+    assisted_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
+    respondent_type_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
+    timing_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
+    collection_method_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
+    assisted_source_value = models.CharField(max_length=50, null=True)
+    respondent_type_source_value = models.CharField(max_length=100, null=True)
+    timing_source_value = models.CharField(max_length=100, null=True)
+    collection_method_source_value = models.CharField(max_length=100, null=True)
+    survey_source_value = models.CharField(max_length=100, null=True)
+    survey_source_concept_id = models.ForeignKey(CONCEPT, null=True, on_delete=models.DO_NOTHING, related_name="+")
+    survey_source_identifier = models.CharField(max_length=100, null=True)
+    validated_survey_concept_id = models.ForeignKey(CONCEPT, null=True, on_delete=models.DO_NOTHING, related_name="+")
+    validated_survey_source_value = models.IntegerField(null=True)
+    survey_version_number = models.CharField(max_length=20, null=True)
+    visit_occurrence_id = models.ForeignKey(
+        VISIT_OCCURRENCE, on_delete=models.DO_NOTHING, null=True, related_name="survey_conduct")
+    response_visit_occurrence_id = models.ForeignKey(
+        VISIT_OCCURRENCE, on_delete=models.DO_NOTHING, null=True, related_name="+")
+
+    class Meta:
+        db_table = "SURVEY_CONDUCT"
