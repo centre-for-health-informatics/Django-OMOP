@@ -11,19 +11,19 @@ from datetime import datetime
 
 class Command(BaseCommand):
 
-    help = 'Import OMOP CONCEPT.csv.'
+    help = 'Import OMOP CONCEPT_RELATIONSHIP.csv.'
 
     def add_arguments(self, parser):
-        parser.add_argument('--path', type=str, help="File path to CONCEPT.CSV")
+        parser.add_argument('--path', type=str, help="File path to CONCEPT_RELATIONSHIP.CSV")
 
     def handle(self, *args, **kwargs):
-        expectedColumns = ['concept_id', 'concept_name', 'domain_id', 'vocabulary_id', 'concept_class_id',
-                           'standard_concept', 'concept_code', 'valid_start_date', 'valid_end_date', 'invalid_reason']
+        expectedColumns = ['concept_id_1', 'concept_id_2', 'relationship_id',
+                           'valid_start_date', 'valid_end_date', 'invalid_reason']
 
         filePath = kwargs.get('path')
         timeZone = pytz.timezone('UTC')
 
-        print(f"Importing OMOP concepts from: {filePath}")
+        print(f"Importing OMOP concept relationships from: {filePath}")
 
         if not filePath:
             print("File path not specified.")
@@ -45,19 +45,28 @@ class Command(BaseCommand):
                 for i, row in enumerate(csvReader):
                     row = [item.strip() for item in row]
 
-                    concept_id, concept_name, _, _, _, standard_concept, concept_code, valid_start_date, valid_end_date, invalid_reason = row
+                    concept_id_1, concept_id_2, relationship_id, valid_start_date, valid_end_date, invalid_reason = row
+
+                    try:
+                        concept1 = CONCEPT.objects.get(concept_id=concept_id_1)
+                        concept2 = CONCEPT.objects.get(concept_id=concept_id_2)
+                        relation = RELATIONSHIP.objects.get(relationship_id=relationship_id)
+                    except:
+                        print(
+                            f"Not found: concept1={concept_id_1}, concept2={concept_id_2}, relation={relationship_id}")
+                        return
 
                     defaults = {
-                        'concept_id': concept_id,
-                        'concept_code': concept_code,
-                        'concept_name': concept_name,
-                        'standard_concept': standard_concept,
+                        'concept_id_1': concept1,
+                        'concept_id_2': concept2,
+                        'relationship_id': relation,
                         'valid_start_date': timeZone.localize(datetime.strptime(valid_start_date, '%Y%m%d')),
                         'valid_end_date': timeZone.localize(datetime.strptime(valid_end_date, '%Y%m%d')),
                         'invalid_reason': invalid_reason,
                     }
 
-                    _, created = CONCEPT.objects.update_or_create(concept_id=concept_id, defaults=defaults)
+                    _, created = CONCEPT_RELATIONSHIP.objects.update_or_create(
+                        concept_id_1=concept1, concept_id_2=concept2, relationship_id=relation, defaults=defaults)
 
                     if created:
                         createdCounter += 1
@@ -65,8 +74,8 @@ class Command(BaseCommand):
                         updatedCounter += 1
 
                     if i % 500 == 0:
-                        printProgressBar(i, maxRow, prefix="Importing OMOP CONCEPTS: ",
+                        printProgressBar(i, maxRow, prefix="Importing OMOP CONCEPT RELATIONSHIP: ",
                                          suffix=f"{'{:,}'.format(i)}/{'{:,}'.format(maxRow)}", decimals=2, length=5)
 
             print(
-                f"Finished importing OMOP concepts: {createdCounter} concepts created, {updatedCounter} concepts updated.")
+                f"Finished importing OMOP concept relationships: {createdCounter} concept relationships created, {updatedCounter} concept relationships updated.")
