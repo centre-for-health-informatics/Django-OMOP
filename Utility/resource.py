@@ -22,3 +22,18 @@ def getRowCount(filename):
         buf = read_f(buf_size)
 
     return lines
+
+
+def genCsvChunks(reader, chunksize=10000):
+    '''
+    Chunk generator. Take a CSV `reader` and yield
+    `chunksize` sized slices. 
+    '''
+
+    chunk = []
+    for index, line in enumerate(reader):
+        if (index % chunksize == 0 and index > 0):
+            yield chunk
+            del chunk[:]
+        chunk.append(line)
+    yield chunk

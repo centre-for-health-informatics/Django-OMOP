@@ -2,8 +2,10 @@ from django.core.management.base import BaseCommand
 import csv
 from django.db import transaction
 from EmrData.OMOPModels.vocabularyModels import *
-from Utility.resource import checkCsvColumns, getRowCount
+from Utility.resource import checkCsvColumns, getRowCount, genCsvChunks
 from Utility.progress import printProgressBar
+
+from multiprocessing import Pool, cpu_count
 
 import pytz
 from datetime import datetime
@@ -13,6 +15,8 @@ class Command(BaseCommand):
 
     help = 'Import OMOP CONCEPT_RELATIONSHIP.csv.'
 
+    timeZone = pytz.timezone('UTC')
+
     def add_arguments(self, parser):
         parser.add_argument('--path', type=str, help="File path to CONCEPT_RELATIONSHIP.CSV")
 
@@ -21,7 +25,6 @@ class Command(BaseCommand):
                            'valid_start_date', 'valid_end_date', 'invalid_reason']
 
         filePath = kwargs.get('path')
-        timeZone = pytz.timezone('UTC')
 
         print(f"Importing OMOP concept relationships from: {filePath}")
 
@@ -29,7 +32,9 @@ class Command(BaseCommand):
             print("File path not specified.")
             return
 
-        maxRow = getRowCount(filePath) - 1
+        maxRows = getRowCount(filePath) - 1
+        chunkSize = 5000
+        chunks = maxRows // chunkSize + 1
 
         with open(filePath, 'r') as f:
             csvReader = csv.reader(f, delimiter='\t')
@@ -37,45 +42,36 @@ class Command(BaseCommand):
             columns = next(csvReader)
             checkCsvColumns(expectedColumns, columns)
 
-            createdCounter = 0
-            updatedCounter = 0
-
             with transaction.atomic():
+                CONCEPT_RELATIONSHIP.objects.all().delete()
+                i = 0
 
-                for i, row in enumerate(csvReader):
-                    row = [item.strip() for item in row]
+                numProcesses = cpu_count()
+                pool = Pool(numProcesses)
 
-                    concept_id_1, concept_id_2, relationship_id, valid_start_date, valid_end_date, invalid_reason = row
+                for rows in genCsvChunks(csvReader, chunksize=chunkSize):
+                    results = pool.apply_async(Command.processRow, args=(rows,))
+                    CONCEPT_RELATIONSHIP.objects.bulk_create(results.get())
+                    i += 1
 
-                    try:
-                        concept1 = CONCEPT.objects.get(concept_id=concept_id_1)
-                        concept2 = CONCEPT.objects.get(concept_id=concept_id_2)
-                        relation = RELATIONSHIP.objects.get(relationship_id=relationship_id)
-                    except:
-                        print(
-                            f"Not found: concept1={concept_id_1}, concept2={concept_id_2}, relation={relationship_id}")
-                        return
+                    printProgressBar(i, chunks, prefix="Importing OMOP CONCEPT RELATIONSHIP: ",
+                                     suffix=f"{'{:,}'.format(i*chunkSize)}/{'{:,}'.format(maxRows)}", decimals=2, length=5)
 
-                    defaults = {
-                        'concept_id_1': concept1,
-                        'concept_id_2': concept2,
-                        'relationship_id': relation,
-                        'valid_start_date': timeZone.localize(datetime.strptime(valid_start_date, '%Y%m%d')),
-                        'valid_end_date': timeZone.localize(datetime.strptime(valid_end_date, '%Y%m%d')),
-                        'invalid_reason': invalid_reason,
-                    }
+                pool.close()
+                pool.join()
 
-                    _, created = CONCEPT_RELATIONSHIP.objects.update_or_create(
-                        concept_id_1=concept1, concept_id_2=concept2, relationship_id=relation, defaults=defaults)
+        print(
+            f"Finished importing OMOP concept relationships: {maxRows} concept relationships created.")
 
-                    if created:
-                        createdCounter += 1
-                    else:
-                        updatedCounter += 1
+    @classmethod
+    def processRow(cls, data):
+        objs = []
+        for row in data:
 
-                    if i % 500 == 0:
-                        printProgressBar(i, maxRow, prefix="Importing OMOP CONCEPT RELATIONSHIP: ",
-                                         suffix=f"{'{:,}'.format(i)}/{'{:,}'.format(maxRow)}", decimals=2, length=5)
+            concept_id_1, concept_id_2, relationship_id, valid_start_date, valid_end_date, invalid_reason = row
 
-            print(
-                f"Finished importing OMOP concept relationships: {createdCounter} concept relationships created, {updatedCounter} concept relationships updated.")
+            objs.append(CONCEPT_RELATIONSHIP(concept_id_1_id=concept_id_1, concept_id_2_id=concept_id_2, relationship_id_id=relationship_id,
+                                             valid_start_date=Command.timeZone.localize(
+                                                 datetime.strptime(valid_start_date, '%Y%m%d')),
+                                             valid_end_date=Command.timeZone.localize(datetime.strptime(valid_end_date, '%Y%m%d')), invalid_reason=invalid_reason))
+        return objs
