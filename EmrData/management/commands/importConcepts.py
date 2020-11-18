@@ -1,72 +1,43 @@
-from django.core.management.base import BaseCommand
-import csv
-from django.db import transaction
-from EmrData.OMOPModels.vocabularyModels import *
-from Utility.resource import checkCsvColumns, getRowCount
-from Utility.progress import printProgressBar
+from EmrData.management.commands.abstractImporter import AbstractImportCommand
+from EmrData.OMOPModels.vocabularyModels import CONCEPT
 
 import pytz
 from datetime import datetime
 
 
-class Command(BaseCommand):
-
+class Command(AbstractImportCommand):
     help = 'Import OMOP CONCEPT.csv.'
 
-    def add_arguments(self, parser):
-        parser.add_argument('--path', type=str, help="File path to CONCEPT.CSV")
+    def printMsg(self):
+        print("Importing OMOP Concepts...")
 
-    def handle(self, *args, **kwargs):
-        expectedColumns = ['concept_id', 'concept_name', 'domain_id', 'vocabulary_id', 'concept_class_id',
-                           'standard_concept', 'concept_code', 'valid_start_date', 'valid_end_date', 'invalid_reason']
+    def expectedCsvColumns(self):
+        return ['concept_id', 'concept_name', 'domain_id', 'vocabulary_id', 'concept_class_id',
+                'standard_concept', 'concept_code', 'valid_start_date', 'valid_end_date', 'invalid_reason']
 
-        filePath = kwargs.get('path')
-        timeZone = pytz.timezone('UTC')
+    def deleteAllModelInstances(self):
+        CONCEPT.objects.all().delete()
 
-        print(f"Importing OMOP concepts from: {filePath}")
+    def bulkCreateModelInstances(self, objs):
+        CONCEPT.objects.bulk_create(objs)
 
-        if not filePath:
-            print("File path not specified.")
-            return
+    def bulkUpdateModelInstances(self, objs):
+        CONCEPT.objects.bulk_update(objs)
 
-        maxRow = getRowCount(filePath) - 1
+    @staticmethod
+    def makeObjFromRow(row):
 
-        with open(filePath, 'r') as f:
-            csvReader = csv.reader(f, delimiter='\t')
+        concept_id, concept_name, domain_id, vocabulary_id, concept_class_id, standard_concept, concept_code, valid_start_date, valid_end_date, invalid_reason = row
 
-            columns = next(csvReader)
-            checkCsvColumns(expectedColumns, columns)
+        return CONCEPT(concept_id=concept_id, concept_code=concept_code, domain_id_id=domain_id, vocabulary_id_id=vocabulary_id, concept_class_id_id=concept_class_id,
+                       concept_name=concept_name, standard_concept=standard_concept, valid_start_date=pytz.timezone('UTC').localize(
+                           datetime.strptime(valid_start_date, '%Y%m%d')),
+                       valid_end_date=pytz.timezone('UTC').localize(datetime.strptime(valid_end_date, '%Y%m%d')), invalid_reason=invalid_reason)
 
-            createdCounter = 0
-            updatedCounter = 0
+    @staticmethod
+    def processRows(rows):
+        return [Command.makeObjFromRow(row) for row in rows]
 
-            with transaction.atomic():
-
-                for i, row in enumerate(csvReader):
-                    row = [item.strip() for item in row]
-
-                    concept_id, concept_name, _, _, _, standard_concept, concept_code, valid_start_date, valid_end_date, invalid_reason = row
-
-                    defaults = {
-                        'concept_id': concept_id,
-                        'concept_code': concept_code,
-                        'concept_name': concept_name,
-                        'standard_concept': standard_concept,
-                        'valid_start_date': timeZone.localize(datetime.strptime(valid_start_date, '%Y%m%d')),
-                        'valid_end_date': timeZone.localize(datetime.strptime(valid_end_date, '%Y%m%d')),
-                        'invalid_reason': invalid_reason,
-                    }
-
-                    _, created = CONCEPT.objects.update_or_create(concept_id=concept_id, defaults=defaults)
-
-                    if created:
-                        createdCounter += 1
-                    else:
-                        updatedCounter += 1
-
-                    if i % 500 == 0:
-                        printProgressBar(i, maxRow, prefix="Importing OMOP CONCEPTS: ",
-                                         suffix=f"{'{:,}'.format(i)}/{'{:,}'.format(maxRow)}", decimals=2, length=5)
-
-            print(
-                f"Finished importing OMOP concepts: {createdCounter} concepts created, {updatedCounter} concepts updated.")
+    def asyncProcessData(self, pool, data):
+        results = pool.apply_async(Command.processRows, args=(data, ))
+        return results.get()

@@ -1,26 +1,26 @@
 from EmrData.management.commands.abstractImporter import AbstractImportCommand
-from EmrData.OMOPModels.vocabularyModels import DOMAIN
+from EmrData.OMOPModels.vocabularyModels import CONCEPT_SYNONYM
 
 
 class Command(AbstractImportCommand):
-    help = "Import OMOP DOMAIN.csv."
+    help = "Import OMOP CONCEPT_SYNONYM.csv."
 
     def printMsg(self):
-        print("Importing OMOP Domains...")
+        print("Importing OMOP Concept Synonyms...")
 
     def expectedCsvColumns(self):
-        return ['domain_id', 'domain_name', 'domain_concept_id']
+        return ['concept_id', 'concept_synonym_name', 'language_concept_id']
 
     def deleteAllModelInstances(self):
-        DOMAIN.objects.all().delete()
+        CONCEPT_SYNONYM.objects.all().delete()
 
     def bulkCreateModelInstances(self, objs):
-        DOMAIN.objects.bulk_create(objs)
+        CONCEPT_SYNONYM.objects.bulk_create(objs)
 
     @staticmethod
     def makeObjFromRow(row):
-        domain_id, domain_name, domain_concept_id = row
-        return DOMAIN(domain_id=domain_id, domain_name=domain_name, domain_concept_id=domain_concept_id)
+        concept_id, concept_synonym_name, language_concept_id = row
+        return CONCEPT_SYNONYM(concept_id_id=concept_id, concept_synonym_name=concept_synonym_name, language_concept_id_id=language_concept_id)
 
     @staticmethod
     def processRows(rows):

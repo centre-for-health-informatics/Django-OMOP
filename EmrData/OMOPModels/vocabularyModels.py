@@ -1,9 +1,41 @@
 from django.db import models
 
 
+class DOMAIN(models.Model):
+    domain_id = models.CharField(max_length=20, primary_key=True)
+    domain_name = models.CharField(max_length=255)
+    domain_concept_id = models.BigIntegerField()
+
+    class Meta:
+        db_table = "DOMAIN"
+
+
+class VOCABULARY(models.Model):
+    vocabulary_id = models.CharField(max_length=20, primary_key=True)
+    vocabulary_name = models.CharField(max_length=255)
+    vocabulary_reference = models.CharField(max_length=255)
+    vocabulary_version = models.CharField(max_length=255, null=True)
+    vocabulary_concept_id = models.BigIntegerField()
+
+    class Meta:
+        db_table = "VOCABULARY"
+
+
+class CONCEPT_CLASS(models.Model):
+    concept_class_id = models.CharField(max_length=20, primary_key=True)
+    concept_class_name = models.CharField(max_length=255)
+    concept_class_concept_id = models.BigIntegerField()
+
+    class Meta:
+        db_table = "CONCEPT_CLASS"
+
+
 class CONCEPT(models.Model):
     concept_id = models.BigIntegerField(primary_key=True)
     concept_name = models.CharField(max_length=255)
+    domain_id = models.ForeignKey(DOMAIN, on_delete=models.DO_NOTHING, related_name='+')
+    vocabulary_id = models.ForeignKey(VOCABULARY, on_delete=models.DO_NOTHING, related_name='+')
+    concept_class_id = models.ForeignKey(CONCEPT_CLASS, on_delete=models.DO_NOTHING, related_name='+')
     standard_concept = models.CharField(max_length=1, null=True)
     concept_code = models.CharField(max_length=50)
     valid_start_date = models.DateField()
@@ -17,35 +49,6 @@ class CONCEPT(models.Model):
             models.Index(fields=['concept_name']),
             models.Index(fields=['standard_concept']),
         ]
-
-
-class VOCABULARY(models.Model):
-    vocabulary_id = models.CharField(max_length=20, primary_key=True)
-    vocabulary_name = models.CharField(max_length=255)
-    vocabulary_reference = models.CharField(max_length=255)
-    vocabulary_version = models.CharField(max_length=255, null=True)
-    vocabulary_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name='vocabulary')
-
-    class Meta:
-        db_table = "VOCABULARY"
-
-
-class DOMAIN(models.Model):
-    domain_id = models.CharField(max_length=20, primary_key=True)
-    domain_name = models.CharField(max_length=255)
-    domain_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name='domain')
-
-    class Meta:
-        db_table = "DOMAIN"
-
-
-class CONCEPT_CLASS(models.Model):
-    concept_class_id = models.CharField(max_length=20, primary_key=True)
-    concept_class_name = models.CharField(max_length=255)
-    concept_class_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name='concept_class')
-
-    class Meta:
-        db_table = "CONCEPT_CLASS"
 
 
 class RELATIONSHIP(models.Model):
