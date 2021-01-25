@@ -23,7 +23,7 @@ class Command(AbstractImportCommand):
 
         relationship_id, relationship_name, is_hierarchical, defines_ancestry, reverse_relationship_id, relationship_concept_id = row
 
-        return RELATIONSHIP(relationship_id=relationship_id, relationship_name=relationship_name, is_hierarchical=is_hierarchical, defines_ancestry=defines_ancestry, reverse_relationship_id=reverse_relationship_id, relationship_concept_id_id=relationship_concept_id)
+        return RELATIONSHIP(relationship_id=relationship_id, relationship_name=relationship_name, is_hierarchical=is_hierarchical, defines_ancestry=defines_ancestry, reverse_relationship_id=reverse_relationship_id, relationship_concept_id=relationship_concept_id)
 
     @staticmethod
     def processRows(rows):

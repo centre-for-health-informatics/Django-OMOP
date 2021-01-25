@@ -26,7 +26,7 @@ class Command(AbstractImportCommand):
 
         concept_id_1, concept_id_2, relationship_id, valid_start_date, valid_end_date, invalid_reason = row
 
-        return CONCEPT_RELATIONSHIP(concept_id_1_id=concept_id_1, concept_id_2_id=concept_id_2, relationship_id_id=relationship_id,
+        return CONCEPT_RELATIONSHIP(concept_id_1_id=concept_id_1, concept_id_2_id=concept_id_2, relationship_id=relationship_id,
                                     valid_start_date=pytz.timezone('UTC').localize(
                                         datetime.strptime(valid_start_date, '%Y%m%d')),
                                     valid_end_date=pytz.timezone('UTC').localize(datetime.strptime(valid_end_date, '%Y%m%d')), invalid_reason=invalid_reason)

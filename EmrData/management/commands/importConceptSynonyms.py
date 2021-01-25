@@ -20,7 +20,7 @@ class Command(AbstractImportCommand):
     @staticmethod
     def makeObjFromRow(row):
         concept_id, concept_synonym_name, language_concept_id = row
-        return CONCEPT_SYNONYM(concept_id_id=concept_id, concept_synonym_name=concept_synonym_name, language_concept_id_id=language_concept_id)
+        return CONCEPT_SYNONYM(concept_id=concept_id, concept_synonym_name=concept_synonym_name, language_concept_id=language_concept_id)
 
     @staticmethod
     def processRows(rows):

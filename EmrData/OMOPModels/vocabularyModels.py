@@ -33,9 +33,9 @@ class CONCEPT_CLASS(models.Model):
 class CONCEPT(models.Model):
     concept_id = models.BigIntegerField(primary_key=True)
     concept_name = models.CharField(max_length=255)
-    domain_id = models.ForeignKey(DOMAIN, on_delete=models.DO_NOTHING, related_name='+')
-    vocabulary_id = models.ForeignKey(VOCABULARY, on_delete=models.DO_NOTHING, related_name='+')
-    concept_class_id = models.ForeignKey(CONCEPT_CLASS, on_delete=models.DO_NOTHING, related_name='+')
+    domain = models.ForeignKey(DOMAIN, on_delete=models.DO_NOTHING, related_name='+')
+    vocabulary = models.ForeignKey(VOCABULARY, on_delete=models.DO_NOTHING, related_name='+')
+    concept_class = models.ForeignKey(CONCEPT_CLASS, on_delete=models.DO_NOTHING, related_name='+')
     standard_concept = models.CharField(max_length=1, null=True)
     concept_code = models.CharField(max_length=50)
     valid_start_date = models.DateField()
@@ -57,7 +57,7 @@ class RELATIONSHIP(models.Model):
     is_hierarchical = models.CharField(max_length=1)
     defines_ancestry = models.CharField(max_length=1)
     reverse_relationship_id = models.CharField(max_length=20)
-    relationship_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING)
+    relationship_concept = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING)
 
     class Meta:
         db_table = "RELATIONSHIP"
@@ -66,7 +66,7 @@ class RELATIONSHIP(models.Model):
 class CONCEPT_RELATIONSHIP(models.Model):
     concept_id_1 = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
     concept_id_2 = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
-    relationship_id = models.ForeignKey(RELATIONSHIP, on_delete=models.DO_NOTHING, related_name="+")
+    relationship = models.ForeignKey(RELATIONSHIP, on_delete=models.DO_NOTHING, related_name="+")
     valid_start_date = models.DateField()
     valid_end_date = models.DateField()
     invalid_reason = models.CharField(max_length=1, null=True)
@@ -76,17 +76,17 @@ class CONCEPT_RELATIONSHIP(models.Model):
 
 
 class CONCEPT_SYNONYM(models.Model):
-    concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
+    concept = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
     concept_synonym_name = models.CharField(max_length=1000)
-    language_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
+    language_concept = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
 
     class Meta:
         db_table = "CONCEPT_SYNONYM"
 
 
 class CONCEPT_ANCESTOR(models.Model):
-    ancestor_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
-    descendant_concept_id = models.ForeignKey(
+    ancestor_concept = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
+    descendant_concept = models.ForeignKey(
         CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
     min_levels_of_separation = models.IntegerField()
     max_levels_of_separation = models.IntegerField()
@@ -97,11 +97,11 @@ class CONCEPT_ANCESTOR(models.Model):
 
 class SOURCE_TO_CONCEPT_MAP(models.Model):
     source_code = models.CharField(max_length=50)
-    source_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
+    source_concept = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
     source_vocabulary_id = models.CharField(max_length=20)
     source_code_description = models.CharField(max_length=255, null=True)
-    target_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
-    target_vocabulary_id = models.ForeignKey(VOCABULARY, on_delete=models.DO_NOTHING, related_name="+")
+    target_concept = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
+    target_vocabulary = models.ForeignKey(VOCABULARY, on_delete=models.DO_NOTHING, related_name="+")
     valid_start_date = models.DateField()
     valid_end_date = models.DateField()
     invalid_reason = models.CharField(max_length=1, null=True)
@@ -111,14 +111,14 @@ class SOURCE_TO_CONCEPT_MAP(models.Model):
 
 
 class DRUG_STRENGTH(models.Model):
-    drug_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
-    ingredient_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
+    drug_concept = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
+    ingredient_concept = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
     amount_value = models.FloatField(null=True)
-    amount_unit_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, null=True, related_name="+")
+    amount_unit_concept = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, null=True, related_name="+")
     numerator_value = models.FloatField(null=True)
-    numerator_unit_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, null=True, related_name="+")
+    numerator_unit_concept = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, null=True, related_name="+")
     denominator_value = models.FloatField(null=True)
-    denominator_unit_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, null=True, related_name="+")
+    denominator_unit_concept = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, null=True, related_name="+")
     box_size = models.IntegerField(null=True)
     valid_start_date = models.DateField()
     valid_end_date = models.DateField()
