@@ -5,6 +5,7 @@ run.bat
 persist/
 env/
 *.sqlite3
+*.sqlite3-journal
 secrets/
 .vscode/
 .DS_Store

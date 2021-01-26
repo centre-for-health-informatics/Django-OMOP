@@ -3,11 +3,11 @@ from django.db import models
 
 
 class METADATA(models.Model):
-    metadata_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
-    metadata_type_concept_id = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
+    metadata_concept = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
+    metadata_type_concept = models.ForeignKey(CONCEPT, on_delete=models.DO_NOTHING, related_name="+")
     name = models.CharField(max_length=250)
     value_as_string = models.CharField(max_length=250, null=True)
-    value_as_concept_id = models.ForeignKey(CONCEPT,  on_delete=models.DO_NOTHING, null=True, related_name="+")
+    value_as_concept = models.ForeignKey(CONCEPT,  on_delete=models.DO_NOTHING, null=True, related_name="+")
     metadata_date = models.DateField(null=True)
     metadata_datetime = models.DateTimeField(null=True)
 

@@ -29,7 +29,7 @@ class Command(AbstractImportCommand):
 
         concept_id, concept_name, domain_id, vocabulary_id, concept_class_id, standard_concept, concept_code, valid_start_date, valid_end_date, invalid_reason = row
 
-        return CONCEPT(concept_id=concept_id, concept_code=concept_code, domain_id_id=domain_id, vocabulary_id_id=vocabulary_id, concept_class_id_id=concept_class_id,
+        return CONCEPT(concept_id=concept_id, concept_code=concept_code, domain_id=domain_id, vocabulary_id=vocabulary_id, concept_class_id=concept_class_id,
                        concept_name=concept_name, standard_concept=standard_concept, valid_start_date=pytz.timezone('UTC').localize(
                            datetime.strptime(valid_start_date, '%Y%m%d')),
                        valid_end_date=pytz.timezone('UTC').localize(datetime.strptime(valid_end_date, '%Y%m%d')), invalid_reason=invalid_reason)

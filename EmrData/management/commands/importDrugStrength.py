@@ -43,9 +43,9 @@ class Command(AbstractImportCommand):
         except:
             box_size_in = None
 
-        return DRUG_STRENGTH(drug_concept_id_id=drug_concept_id, ingredient_concept_id_id=ingredient_concept_id, amount_value=amount_value_fl,
-                             amount_unit_concept_id_id=amount_unit_concept_id, numerator_value=numerator_value_fl, numerator_unit_concept_id_id=numerator_unit_concept_id,
-                             denominator_value=denominator_value_fl, denominator_unit_concept_id_id=denominator_unit_concept_id, box_size=box_size_in,
+        return DRUG_STRENGTH(drug_concept_id=drug_concept_id, ingredient_concept_id=ingredient_concept_id, amount_value=amount_value_fl,
+                             amount_unit_concept_id=amount_unit_concept_id, numerator_value=numerator_value_fl, numerator_unit_concept_id=numerator_unit_concept_id,
+                             denominator_value=denominator_value_fl, denominator_unit_concept_id=denominator_unit_concept_id, box_size=box_size_in,
                              valid_start_date=pytz.timezone('UTC').localize(
                                  datetime.strptime(valid_start_date, '%Y%m%d')), valid_end_date=pytz.timezone('UTC').localize(datetime.strptime(valid_end_date, '%Y%m%d')),
                              invalid_reason=invalid_reason)

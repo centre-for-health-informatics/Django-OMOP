@@ -23,7 +23,7 @@ class Command(AbstractImportCommand):
     @staticmethod
     def makeObjFromRow(row):
         ancestor_concept_id, descendant_concept_id, min_levels_of_separation, max_levels_of_separation = row
-        return CONCEPT_ANCESTOR(ancestor_concept_id_id=ancestor_concept_id, descendant_concept_id_id=descendant_concept_id,
+        return CONCEPT_ANCESTOR(ancestor_concept_id=ancestor_concept_id, descendant_concept_id=descendant_concept_id,
                                 min_levels_of_separation=min_levels_of_separation, max_levels_of_separation=max_levels_of_separation)
 
     @staticmethod
